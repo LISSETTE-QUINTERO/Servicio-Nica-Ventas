@@ -61,7 +61,7 @@ EXPOSE 5000
 ```
  - Para construir y etiquetar la imagen ejecutamos esta línea en terminal:
  ```
-docker build -t darwinsalinas/nicaventasnivel1 .
+docker build -t lissettedocker/nicaventas .
 ```
  - Para subir nuestra imagen recién creada ejecutamos la siguiente linea en terminal:
 ```sh
