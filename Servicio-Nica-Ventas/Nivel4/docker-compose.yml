@@ -1,0 +1,57 @@
+version: '3'
+services:  
+       redis:
+              image: redis
+              expose:
+                       - 6379
+       Disponibilidad:
+               image: lissettedocker/nicaventas:N4D
+               build:
+                       context: ./Disponibilidad
+                       dockerfile: Dockerfile
+               ports:
+                       - "8000:5000"
+               volumes:
+                       - ./Disponibilidad/app:/app
+               command: flask run --host=0.0.0.0
+               environment:
+                       - FLASK_DEBUG=1
+                       - DATABASE_PASSWORD=nicaventaspass
+                       - DATABASE_NAME=nicaventasdb
+                       - DATABASE_USER=nicaventasuser
+                       - DATABASE_HOST=nicaventas-db
+                       - REDIS_LOCATION=redis
+                       - REDIS_PORT=6379
+               command: flask run --host=0.0.0.0
+
+       Condiciones:
+               image: lissettedocker/nicaventas:N4C
+               build:
+                       context: ./Condiciones
+                       dockerfile: Dockerfile
+               ports:
+                       - "8001:5000"
+               volumes:
+                       - ./Condiciones/app:/app
+               command: flask run --host=0.0.0.0
+               environment:
+                       - FLASK_DEBUG=1
+                       - DATABASE_PASSWORD=nicaventaspass
+                       - DATABASE_NAME=nicaventasdb
+                       - DATABASE_USER=nicaventasuser
+                       - DATABASE_HOST=nicaventas-db
+                       - REDIS_LOCATION=redis
+                       - REDIS_PORT=6379
+               command: flask run --host=0.0.0.0
+       nicaventas-db:
+              image: mysql:5
+              environment:
+                      - MYSQL_ROOT_PASSWORD=123qwe
+                      - MYSQL_DATABASE=nicaventasdb
+                      - MYSQL_USER=nicaventasuser
+                      - MYSQL_PASSWORD=nicaventaspass
+              expose:
+                     - 3306
+              volumes:
+                      - ./Condiciones/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      

@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS location (
+       id integer auto_increment,
+       country varchar(2) NOT NULL,
+       city varchar(100) NOT NULL,
+       active bool NOT NULL,
+       PRIMARY KEY (id)
+) ENGINE=innodb
+CREATE TABLE IF NOT EXISTS products (
+       sku varchar (7) auto_increment,
+       description varchar(30) NOT NULL,
+       price float(5) NOT NULL,
+      PRIMARY KEY (sku)
+) ENGINE=innodb
+CREATE TABLE IF NOT EXISTS rules (
+       id INT NOT NULL AUTO_INCREMENT,
+       country varchar(2) NOT NULL,
+       city varchar(5) NOT NULL,
+       sku varchar (7) NOT NULL,
+       min_condition int(3) NOT NULL,
+       max__condition int(3) NOT NULL,
+       varation DECIMAL(2,1) NOT NULL,
+       PRIMARY KEY (id), index (country), index(city),
+       FOREIGN KEY (sku) REFERENCES producto (sku),
+       foreign key (country,city) REFERENCES location (country,city)
+) ENGINE=innodb
+INSERT INTO products (sku,description,price) VALUES('AZ00001','Paraguas de señora
