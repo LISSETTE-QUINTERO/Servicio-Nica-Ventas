@@ -46,7 +46,7 @@ RUN pip install -r /app/requirements.txt
 
 La imagen se ejecuta con el comando que arranca la aplicación:
 
-```
+```sh
 CMD ["python", "app.py"]
 
 ```
@@ -126,7 +126,7 @@ docker-compose up &
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
-```
+```sh
 {
   "active": true,
   "country": "ni",
@@ -139,7 +139,7 @@ Una serie de operadores son los encargados de activar y desactivar las posibilid
 
 Modificar el estado de actividad de una ciudad de un país: **URL**: `/active` **Method**: `PUT` **Auth required**: YES **Body format**: `Content-type: application/json` **Body payload**:
 
-```
+```sh
 {
   "active": true,
   "country": "ni",
