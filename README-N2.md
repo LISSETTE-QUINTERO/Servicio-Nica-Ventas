@@ -1,4 +1,4 @@
-﻿
+
 # Nivel 2
 
 Objetivos:
@@ -121,23 +121,6 @@ Ademas del nombre de la base de datos también tenemos algunas configuraciones p
 ```
 docker-compose up &
 ```
-Como hemos arrancado la aplicación y la base de datos en backgroud podemos ver los logs de lo que está ocurriendo en nuestros contenedores con el siguiente comando:
-
-
-En este caso específicamente veremos los logs del servicio de la base de datos.
-
-Si por algún motivo la base datos no se crea automáticamente también podemos crear la base de datos de forma manual con la siguiente instrucción en la terminal:
-
-docker exec -it nicaventas-db psql -U postgres -c "create database nicaventas"
-
-De igual manera se dispone de un script que permite poblar la base de datos con algunos datos para hacer pruebas, esto puede hacerse con la siguiente instrucción en la terminal:
-
-docker-compose run nicaventas-us python seed_database.py
-
-Para detener los servicios orquestados con docker-compose se debe ejecutar el siguiente comando en la terminal:
-
-docker-compose down
-
 ## Funcionamiento del servicio de consulta de disponibilidad de ventas
 
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
