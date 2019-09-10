@@ -29,7 +29,7 @@ La estructura directorios y archivos de la aplicación es la siguiente:
 
 
 ```
-##  archivo Dockerfile
+##   Dockerfile
 
 Para crear la imagen con el micro servicio se ha creado un archivo Dockerfile con el siguiente contenido:
 
@@ -75,7 +75,7 @@ CMD ["python", "app.py"]
 
 ```
 
-- Construir la imagen
+- # Construir la imagen
 
 Para construir la imagen se debe ejecutar el siguiente comando en la terminal, en la misma ruta donde se encuentra ubicado el archivo Dockerfile:
 ```
@@ -86,7 +86,7 @@ En mi caso yo le he construido y etiquetado para poderla subir a [mi repositorio
 docker login 
 docker push lissettedocker/nicaventas:N3
 ```
-- Contruir docker-compose
+- #Contruir docker-compose
 
 Para probar de forma fácil el funcionamiento del micro servicio creado se ha creado una receta con docker-compose, el cual orquesta un servicio para redis, uno para la base de datos y por ultimo el servicio para la aplicación Flask.
 
@@ -171,7 +171,7 @@ Una serie de operadores son los encargados de activar y desactivar las posibilid
 
 Modificar el estado de actividad de una ciudad de un país: **URL**: `/active` **Method**: `PUT` **Auth required**: YES **Body format**: `Content-type: application/json` **Body payload**:
 
-```
+```sh
 {
   "active": true,
   "country": "ni",
