@@ -1,6 +1,12 @@
-# Servicio-Nica-Ventas
-Nivel 4
-Descripción general
+# Nivel 4
+
+Objetivos:
+
+   -Evolucionar la arquitectura existente para incluir un micro servicio que proporcione el API [POST] /quote, según lo especificado en el enunciado en Servicio de consulta de condiciones de venta
+   -Añadir al archivo docker-compose el nuevo microservicio
+   -Añadir políticas de cacheo de forma que si se solicita [POST] /quote con los mismos parámetros se responda desde la cache de REDIS en lugar de volver a realizar la consultas a OpenWeather y la BBDD. La valided de uno de estos datos cacheados será de 5 min. Con objeto de verificar que la cache funciona, incluir en la respuesta un campo cache como se hizo anteriormente.
+
+## Desarrollo
 
 La aplicación de NicaVentas cuenta con dos micro servicios con una estructura bastante simple, los cuales fueron creados para interactuar con el servicio de base de datos(postgres) y el servicio de caché(redis), el primero de estos dos servicios es el servicio de consulta de disponibilidad de ventas por país y ciudades, el segundo es el servicio de consulta de condiciones de venta, en este segundo servicio se hace uso del API de OpenWeatherMaps para consultar el estado del clima en el Pais y ciudad solicitado, esto con el fin de poder hacer una venta diferenciada de acuerdo al clima que se esté presentado en ese momento en la ciudad.
 Estructura de carpetas y archivos para la aplicación NicaVentas:
@@ -30,9 +36,9 @@ Estructura de carpetas y archivos para la aplicación NicaVentas:
 ├── docker-compose.ym
 └── docker-compose.yml
 ```
-Servicio de consulta de disponibilidad de ventas
+## Servicio de consulta de disponibilidad de ventas
 
-Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país haciendo uso del endpoint [GET] /active?city=leon&country=ni.
+Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país haciendo uso del endpoint `[GET] /active?city=leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
 ```
@@ -47,6 +53,7 @@ El campo active indica si la venta está autorizada (true) o no (false) en la co
 Una serie de operadores son los encargados de activar y desactivar las posibilidades de venta en las ciudades. Estos operadores disponen del siguiente endpoint del API para activar o desactivar la venta:
 
 Modificar el estado de actividad de una ciudad de un país: URL: /active Method: PUT Auth required: YES Body format: Content-type: application/json Body payload:
+
 ```
 {
   "active": true,
@@ -60,7 +67,7 @@ Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918
 ```
 Servicio de consulta de condiciones de venta
 
-El servicio de condiciones de venta permite consultar qué porcentaje de descuento se hará a un producto determinado. Los productos se identifican mediante un código único denominado SKU. A modo de ejemplo vamos a considerar dos productos:
+El servicio de condiciones de venta permite consultar qué porcentaje de descuento se hará a un producto determinado. Los productos se identifican mediante un código único denominado `SKU`. A modo de ejemplo vamos a considerar dos productos:
 
 
 | SKU | DESCRIPCION| PRECIO|
@@ -69,10 +76,10 @@ El servicio de condiciones de venta permite consultar qué porcentaje de descuen
 | AZ00002 | Helado de sabor fresa |1€|
 
  	
-El precio final de venta dependerá de dos factores: la ciudad y país de venta, y la condiciones meteorológicas de esa ciudad. La idea general es vender más caros los paraguas y más baratos los helados si estuviera lloviendo, y al contrario, abaratar los paraguas y encarecer helados si hiciera sol. Se proporcionará para esta consulta el endpoint [GET] /price/<:sku>.
+El precio final de venta dependerá de dos factores: la ciudad y país de venta, y la condiciones meteorológicas de esa ciudad. La idea general es vender más caros los paraguas y más baratos los helados si estuviera lloviendo, y al contrario, abaratar los paraguas y encarecer helados si hiciera sol. Se proporcionará para esta consulta el endpoint `[GET] /price/<:sku>`.
 
 Por ejemplo, si la venta se hace en León (Nicaragua) y está lloviendo en ese momento, la llamada [POST] /quote con body:
-```
+```sh
 {
   "sku": "AZ00001",
   "country": "ni",
@@ -80,7 +87,7 @@ Por ejemplo, si la venta se hace en León (Nicaragua) y está lloviendo en ese m
 }
 ```
 Respondería, por ejemplo:
-```
+```sh
 {
   "sku": "AZ00001",
   "description": "Paraguas de señora estampado",
@@ -95,11 +102,12 @@ El precio de los paraguas bajo estas condiciones sería de 10 x 1.5 = 15€.
 Para calcular la respuesta adecuada, el endpoint [POST] /quote dispondrá del API de un tercero, concretamente de OpenWeather, para consultar el tiempo meteorológico de una ciudad concreta de un país.
 
 Con la información devuelta por el API de OpenWeather estamos en condiciones de comparar con las reglas de variación que hayamos creado en la base de datos:
-id_regla 	ciudad 	pais 	SKU 	min_condition 	max_condition 	variation
-1 	Leon 	NI 	AZ00001 	500 	599 	1.5
-2 	Leon 	NI 	AZ00002 	500 	599 	0.5
-						
 
+| id_regla | ciudad| pais|SKU|min_condition|max_condition| variation|
+| ------ | ------ |------ |------ |------ |------ |------ |
+| 1   | Leon  |NI|AZ00001|500|599|1.5|
+| 2  | Leon |NI|AZ00002|500|599|0.5|
+ 	 	 	 	
 Supongamos que preguntamos al servicio meteorológico sobre las condiciones en Leon, Nicaragua, y obtenemos id=503 (very heavy rain). Consultamos a continuación a la base de datos y si se cumple al menos una regla de las que tengamos guardadas entonces el valor de variation será la variación que debemos usar. Si por el contrario no se cumpliera ninguna regla se podría considerar que la variación es 1, o lo que es lo mismo, que no hay variación.
 Procedimiento realizado para la creación y publicación de las imágenes de Docker
 
@@ -115,42 +123,37 @@ Esta imagen contiene lo necesario para correr código de Python, por lo cual a p
 # Dockerfile
 ```sh
 FROM python
-LABEL maintainer "Darwin Salinas <salinash2000@gmail.com>"
-RUN mkdir /app
-WORKDIR /app
-COPY . /app
-RUN pip install -r requirements.txt
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
-RUN chmod +x /wait
-CMD /wait && python app.py
+COPY /app /app
+RUN pip install -r /app/requirements.txt
+WORKDIR app
+CMD ["python", "app.py"]
+EXPOSE 5000
 ```
 Puedes reemplazar el nombre y correo del manteiner de la imagen
 
 Para construir las imágenes de Docker y etiquetarlas ejecutamos esta línea en terminal dentro de la carpeta correspondiente de cada micro servicio:
 ```
-docker build -t darwinsalinas/nicaventas-disponibilidad-nivel4 .
-docker build -t darwinsalinas/nicaventas-condiciones-nivel4 .
+docker build -t lissettedocker/nicaventas:N4C .
+docker build -t lissettedocker/nicaventas:N4D .
 ```
 Para subir nuestras imágenes recién creadas ejecutamos lo siguiente en terminal:
 ```
-docker login && docker push darwinsalinas/nicaventas-condiciones-nivel4
-docker login && docker push darwinsalinas/nicaventas-disponibilidad-nivel4
+docker login 
+docker push lissettedocker/nicaventas:N4C
+docker push lissettedocker/nicaventas:N4D
 ```
 Al ejecutar las lineas de arriba se nos va a solicitar nuestras credenciales de dockerhub.
 
 Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno .env que contenga todas las credenciales y configuraciones de la aplicación:
 ```
-POSTGRES_DB=nicaventas
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DB_PORT=5432
-DB_SERVICE=nicaventas-db
-APP_SETTINGS=config.DevelopmentConfig
-FLASK_DEBUG=1
-TOKEN=2234hj234h2kkjjh42kjj2b20asd6918
-REDIS_PORT=6379
-REDIS_LOCATION=redis
-API_KEY_OWM=3d3ea700fcb655178274e26b3af34ccd
+environment:
+                       - FLASK_DEBUG=1
+                       - DATABASE_PASSWORD=nicaventaspass
+                       - DATABASE_NAME=nicaventasdb
+                       - DATABASE_USER=nicaventasuser
+                       - DATABASE_HOST=nicaventas-db
+                       - REDIS_LOCATION=redis
+                       - REDIS_PORT=6379
 ```
 Aparte del archivo de configuración anteriormente descrito, también necesitamos el script de initdb.sql para crear las tablas y rellenarla con datos para realizar pruebas:
 
@@ -162,57 +165,63 @@ Aparte del archivo de configuración anteriormente descrito, también necesitamo
 Para poner en funcionamiento los dos micro servicios, mas la base de datos y el servicio de cache con un solo comando, en este ejemplo se hace uso del orquestador Docker compose, compose utiliza un archivo YML para configurar y arrancar los servicios de la aplicación.
 
 A continuación las lineas necesarias en el archivo docker-compose.yml
-```
+```sh
 version: '3'
-services:
-  nicaventas-db:
-    restart: always
-    image: postgres
-    container_name: "nicaventas-db"
-    env_file:
-      - .env
-    ports:
-      - "54320:5432"
-    volumes:
-      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
-    # volumes:
-    #   - my_dbdata:/var/lib/postgresql/data
-
-  nicaventas-disponibilidad:
-    restart: always
-    depends_on:
-      - nicaventas-db
-    environment:
-      WAIT_HOSTS: nicaventas-db:5432
-    container_name: "nicaventas-disponibilidad-us"
-    image: darwinsalinas/nicaventas-disponibilidad-nivel4
-    env_file:
-    - .env
-    ports:
-      - 5000:5000
-    command: flask run --host=0.0.0.0
-
-  nicaventas-condiciones:
-    restart: always
-    depends_on:
-      - nicaventas-db
-    environment:
-      WAIT_HOSTS: nicaventas-db:5432
-    container_name: "nicaventas-condiciones-us"
-    image: darwinsalinas/nicaventas-condiciones-nivel4
-    env_file:
-    - .env
-    ports:
-      - 5001:5000
-    command: flask run --host=0.0.0.0
-
-  redis:
-    image: redis
-    expose:
-      - 6379
-
-volumes:
-  my_dbdata:
+services:  
+       redis:
+              image: redis
+              expose:
+                       - 6379
+       Disponibilidad:
+               image: lissettedocker/nicaventas:N4D
+               build:
+                       context: ./Disponibilidad
+                       dockerfile: Dockerfile
+               ports:
+                       - "8000:5000"
+               volumes:
+                       - ./Disponibilidad/app:/app
+               command: flask run --host=0.0.0.0
+               environment:
+                       - FLASK_DEBUG=1
+                       - DATABASE_PASSWORD=nicaventaspass
+                       - DATABASE_NAME=nicaventasdb
+                       - DATABASE_USER=nicaventasuser
+                       - DATABASE_HOST=nicaventas-db
+                       - REDIS_LOCATION=redis
+                       - REDIS_PORT=6379
+               command: flask run --host=0.0.0.0
+       Condiciones:
+               image: lissettedocker/nicaventas:N4C
+               build:
+                       context: ./Condiciones
+                       dockerfile: Dockerfile
+               ports:
+                       - "8001:5000"
+               volumes:
+                       - ./Condiciones/app:/app
+               command: flask run --host=0.0.0.0
+               environment:
+                       - FLASK_DEBUG=1
+                       - DATABASE_PASSWORD=nicaventaspass
+                       - DATABASE_NAME=nicaventasdb
+                       - DATABASE_USER=nicaventasuser
+                       - DATABASE_HOST=nicaventas-db
+                       - REDIS_LOCATION=redis
+                       - REDIS_PORT=6379
+               command: flask run --host=0.0.0.0
+       nicaventas-db:
+              image: mysql:5
+              environment:
+                      - MYSQL_ROOT_PASSWORD=123qwe
+                      - MYSQL_DATABASE=nicaventasdb
+                      - MYSQL_USER=nicaventasuser
+                      - MYSQL_PASSWORD=nicaventaspass
+              expose:
+                     - 3306
+              volumes:
+                      - ./Condiciones/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    
 ```
 Ya con estos archivos podemos correr nuestros servicios con la siguiente instrucción:
 ```
@@ -223,7 +232,7 @@ Si queremos poner a correr ls servicios en segundo plano podemos agregarle el fl
 docker-compose up -d
 ```
 
-Servicio de consulta de disponibilidad de venta
+## Servicio de consulta de disponibilidad de venta
 
 Probar con Postman, el navegador o también lo puedes hacer con: curl localhost:5000/active?city=leon&country=ni. La respuesta que devuelve debe ser una respuesta JSON como esto:
 
@@ -356,5 +365,187 @@ Construcción de los micro servicios
 Los servicios para el API fueron creados usando Python y Flask y algunas librerías de Python como Flask-SQLAlchemy, requests, redis, a continuación el código fuente de Python para cada uno de los micro servicios
 Servicio de consulta de disponibilidad
 ```sh
-app.py
+shema.py
+CREATE TABLE IF NOT EXISTS location (
+       country varchar(2) NOT NULL,
+       city varchar(100) NOT NULL,
+       active bool NOT NULL,
+       PRIMARY KEY (country, city)
+) ENGINE=innodb;
+CREATE TABLE IF NOT EXISTS products (
+       sku varchar (7) NOT NULL,
+       description varchar(30) NOT NULL,
+       price float(5) NOT NULL,
+       PRIMARY KEY (sku)
+) ENGINE=innodb;
+CREATE TABLE IF NOT EXISTS rules (
+       id INT NOT NULL AUTO_INCREMENT,
+       country varchar(2) NOT NULL,
+       city varchar(100) NOT NULL,
+       sku varchar (7) NOT NULL,
+       min_condition int(3) NOT NULL,
+       max_condition int(3) NOT NULL,
+       variation DECIMAL(2,1) NOT NULL,
+       PRIMARY KEY (id), index (country), index(city),
+       FOREIGN KEY (sku) REFERENCES products (sku),
+       foreign key (country,city) REFERENCES location (country,city)
+) ENGINE=innodb;
+INSERT INTO products (sku, description, price) VALUES('AZ00001','Paraguas de señora estampado', 10.0);
+INSERT INTO products (sku, description, price) VALUES('AZ00002','Helado de sabor fresa', 10.0);
+INSERT INTO location (country, city, active) VALUES('NI','Managua', false);
+INSERT INTO location (country, city, active) VALUES('NI','Nueva Guinea', false);
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Managua', 'AZ0000
+1', 500,599, 1.5);
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Managua', 'AZ0000
+2', 500, 599, 0.5); 
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Managua', 'AZ0000
+1', 800, 804, 0.5); 
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Managua', 'AZ0000
+2', 800, 804, 1.5);
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Nueva Guinea', 'A
+Z00001', 500,599, 1.5);
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Nueva Guinea', 'A
+Z00002', 500, 599, 0.5); 
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Nueva Guinea', 'A
+Z00001', 800, 804, 0.5); 
+INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) values ('NI', 'Nueva Guinea', 'A
+Z00002', 800, 804, 1.5); 
+```
+app.py 
+```sh
+import os
+from flask_mysqldb import MySQL
+from worklog import Worklog
+import redis
+import requests 
+import json
+import sys
+
+app = Flask(__name__)
+
+app.config['MYSQL_HOST'] = os.environ['DATABASE_HOST']
+app.config['MYSQL_USER'] = os.environ['DATABASE_USER']
+app.config['MYSQL_PASSWORD'] = os.environ['DATABASE_PASSWORD']
+app.config['MYSQL_DB'] = os.environ['DATABASE_NAME']
+app.config['JSON_AS_ASCII'] = False;
+mysql = MySQL(app)
+redis_cli = redis.Redis(host=os.environ['REDIS_LOCATION'], port=os.environ['REDIS_PORT'])
+#GET/price--------------------------
+@app.route('/price/<idSku>')
+def consultar(idSku):
+    try:
+       wl = Worklog(mysql, app.logger)
+       js = wl.find_price(escape(idSku))
+       
+       response={
+                    "price": float(js[2]),
+                    "idSku": escape(idSku),
+                    "description": js[1],
+                }
+       return jsonify(response)
+    except:
+      return jsonify({"message":"Datos no asociados"})
+  #..................P0ST----------------
+  @app.route('/quote', methods=['POST'])
+def post_quote():
+    #try:
+       payload = request.get_json()
+       key = payload['country'].lower() + '-' + payload['city'].lower() + '-' + payload['sku'].lower()        
+       
+       cache = redis_cli.get(key)       
+       if cache:
+           js = json.loads(cache)            
+           
+           response = {
+                            "sku": js['sku'],
+                            "country": js['country'],
+                            "city": js['city'],
+                            #"price": js['price'],
+                            #"var": js['var'],
+                            "cache": "hit"
+                      }
+           return jsonify(response)
+       else:
+            weather = requests.get('http://api.openweathermap.org/data/2.5/weather?q=' + payload['city'] + ',' +
+ payload['country'] + '&appid=3225ae99d4c4cb46be4a2be004226918').json()      
+       
+            wl = Worklog(mysql, app.logger)
+            js = wl.find_rules(weather['weather'][0]['id'], **payload)
+            redis_cli.setex(key, 300, '{"country":"' + js[0] +
+                                      '","city":"' + js[1] +
+                                      '","sku":"' + js[2] +
+                                      '","min":"' + str(js[3]) +
+                                      '","max":"' +str(js[4])+
+                                      '","var":"' +str(js[5])+
+                                      '","description":"' +js[6]+
+                                      '","price":'+str(js[7])+
+                                      '}')
+            return jsonify({'cache':'miss', 'country': js[0], 'city': js[1], 'sku': js[2], 'min': str(js[3]), 'm
+ax': str(js[4]), 'var': str(js[5]), 'price':str(js[7]), 'description': js[6]})
+    #except:
+    #   return jsonify('Error, Verifique URL.')
+#....................
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
+```
+requiriments.txt
+```sh
+Click==7.0
+Flask==1.1.1
+Flask-MySQL==1.4.0
+Flask-MySQLdb==0.2.0
+itsdangerous==1.1.0
+Jinja2==2.10.1
+MarkupSafe==1.1.1
+mysqlclient==1.4.2.post1
+PyMySQL==0.9.3
+redis==3.2.1
+Werkzeug==0.15.5
+redis==3.2.1
+worklog
+requests
+```
+worklog.py
+```sh
+class Worklog:
+   def __init__(self, dbcon, logger):
+       self._dbcon=dbcon
+       self._logger=logger
+   def find_price(self, sku):
+       sql = """
+       select * from products  where sku="{}";
+       """.format(  
+             sku)
+       cur = self._dbcon.connection.cursor()
+       cur.execute(sql)
+       rv = cur.fetchone()
+       cur.close()
+       return rv
+   def find_rules(self, weather, **payload):
+       sql = """
+       select country
+              , city
+              , rl.sku
+              , min_condition
+              , max_condition
+              , variation
+              , pr.description
+              , pr.price
+       from rules as rl
+       inner join products as pr on rl.sku = pr.sku
+       where country = "{}" and city =  "{}" and  min_condition <= "{}" and max_condition >= "{}" and  rl.sku = 
+"{}"; 
+       """.format(  
+              payload['country'],
+              payload['city'],
+              weather,
+              weather,
+              payload['sku'])
+       cur = self._dbcon.connection.cursor()
+       cur.execute(sql)
+       rv = cur.fetchone()
+       cur.close()
+       self._logger.info(sql)
+       self._logger.info(rv)
+       return rv
 ```
