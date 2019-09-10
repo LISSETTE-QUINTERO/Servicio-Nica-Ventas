@@ -9,7 +9,7 @@ Objetivos:
  - Añadir al archivo docker-compose el servicio de redis
 ### Desarrollo
 
-Esta aplicación fue creada con `python`, `postgres` y el micro framewok `Flask`, (entre otras librerías/dependencias) se ha creado una imagen de Docker basada en la [imagen oficial de Python](https://hub.docker.com/_/python).
+Esta aplicación fue creada con `python`, `mysql` y el micro framewok `Flask`, se ha creado una imagen de Docker basada en la [imagen oficial de Python](https://hub.docker.com/_/python).
 
 La estructura directorios y archivos de la aplicación es la siguiente:
 
@@ -142,7 +142,6 @@ Como se puede apreciar en el archivo `docker-compose` se especifican los servici
 
 Este archivo de entorno (environment) será compartido con ambos servicios, en él tendremos el nombre de la base de datos a la cuál debe conectarse nuestra aplicación Flask, en este caso la base de datos llamada `nica-ventas`.
 
-Ademas del nombre de la base de datos también tenemos algunas configuraciones para el entorno de Flask, específicamente el modo de depuración está activado en esta configuración y la configuración para redis.
 
 ### Arrancar los contenedores orquestados con docker-compose:
 ```
@@ -154,7 +153,7 @@ docker-compose up &
 ```
 
 
-## Funcionamiento del servicio de consulta de disponibilidad de ventas
+### Funcionamiento del servicio de consulta de disponibilidad de ventas
 
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=Leon&country=ni`.
 
@@ -189,7 +188,7 @@ El token es un secreto compartido entre los encargados y el sistema. Para este e
 
 ### Probar el Servicio de consulta de disponibilidad de venta
 
-Probar con Postman, el navegador o también lo puedes hacer con: `curl localhost:8000/active?city=Leon\&country=NI`. La respuesta que devuelve debe ser una respuesta JSON como esto:
+- Probar  con: `curl localhost:8000/active?city=Leon\&country=NI`. La respuesta que devuelve debe ser una respuesta JSON como esto:
 ```sh
 {
   "active": true, 
@@ -199,7 +198,7 @@ Probar con Postman, el navegador o también lo puedes hacer con: `curl localhost
 }
 ```     
 
-Para `guardar` un nuevo registro en la base de datos podemos ejecutar esta linea en la terminal:
+- Para `guardar` un nuevo registro en la base de datos podemos ejecutar esta linea en la terminal:
 ``` 
 curl -d '{"city":"Leon", "country":"NI", "estado":"True"}' -H "Content-Type: application/json" -X POST localhost:8000/active
 ``` 
@@ -209,7 +208,7 @@ Esto nos debe responder un json con los datos del registro que ha sido guardado:
   "mensaje": "Registro existente"
 }
 ``` 
-Si queremos comprobar que realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
+ - Comprobar si realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
 ``` 
 curl localhost:8000/active?city=Leon\&country=NI 
 ``` 
@@ -235,7 +234,7 @@ Si nos fijamos con detenimiento, en este caso la respuesta incluye un atributo l
 
 
 ``` 
-Para `actualizar` un registro podemos ejecutar la siguiente linea en terminal:
+- Para `actualizar` un registro podemos ejecutar la siguiente linea en terminal:
 ``` 
 curl -d '{"city":"Leon", "country":"NI", "estado":"False"}' -H "Content-Type: application/json" -H "Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918" -X PUT localhost:8000/active
 ``` 
@@ -253,7 +252,7 @@ Si queremos estar totalmente seguros de que se ha actualizado en la base de dato
 ``` 
 
 
-Ademas de devolvernos el registro actualizado, ahora veremos que también la caché ha sido borrada y se hizo la consulta en base de datos, tal como se nos indica con `"cache": "miss"`:
+-Devolvernos el registro actualizado, ahora veremos que también la caché ha sido borrada y se hizo la consulta en base de datos, tal como se nos indica con `"cache": "miss"`:
 
 ```sh
 
