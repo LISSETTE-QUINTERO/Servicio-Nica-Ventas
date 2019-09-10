@@ -62,12 +62,13 @@ Servicio de consulta de condiciones de venta
 
 El servicio de condiciones de venta permite consultar qué porcentaje de descuento se hará a un producto determinado. Los productos se identifican mediante un código único denominado SKU. A modo de ejemplo vamos a considerar dos productos:
 
-| SKU        |   DESCRIPCION     |  PRECIO     |
- 
-| -----------|----------- |-----------|
-AZ00001 	Paraguas de señora estampado 	10€
-AZ00002 	Helado de sabor fresa 	1€
 
+| SKU | DESCRIPCION| PRECIO|
+| ------ | ------ |------ |
+| AZ00001  | Paraguas de señora estampado |10€|
+| AZ00002 | Helado de sabor fresa |1€|
+
+ 	
 El precio final de venta dependerá de dos factores: la ciudad y país de venta, y la condiciones meteorológicas de esa ciudad. La idea general es vender más caros los paraguas y más baratos los helados si estuviera lloviendo, y al contrario, abaratar los paraguas y encarecer helados si hiciera sol. Se proporcionará para esta consulta el endpoint [GET] /price/<:sku>.
 
 Por ejemplo, si la venta se hace en León (Nicaragua) y está lloviendo en ese momento, la llamada [POST] /quote con body:
