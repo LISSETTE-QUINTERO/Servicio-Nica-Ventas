@@ -1,6 +1,13 @@
-﻿
+
 
 # Nivel 3
+
+Objetivos:
+
+- Modificar el microservicio para que la respuesta de la llamada [GET] /active se haga desde una cache REDIS. La respuesta de - este servicio ahora incluirá un campo cache que valdrá miss si la respuesta procede de la base de datos, y hit si la respuesta procede de caché.
+ -  Modificar el microservicio para que la respuesta de la llamada [POST] /active invalide el posible contenido cacheado en REDIS.
+ - Añadir al archivo docker-compose el servicio de redis
+### Desarrollo
 
 Esta aplicación fue creada con `python`, `postgres` y el micro framewok `Flask`, (entre otras librerías/dependencias) se ha creado una imagen de Docker basada en la [imagen oficial de Python](https://hub.docker.com/_/python).
 
@@ -26,7 +33,7 @@ La estructura directorios y archivos de la aplicación es la siguiente:
 
 Para crear la imagen con el micro servicio se ha creado un archivo Dockerfile con el siguiente contenido:
 
-```
+```sh
 FROM python
 COPY app /app
 RUN pip install -r /app/requirements.txt
@@ -152,13 +159,13 @@ docker-compose up &
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=Leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
-
+```sh
 {
   "active": true,
   "country": "ni",
   "city": "Leon"
 }
-
+```
 El campo `active` indica si la venta está autorizada (`true`) o no (`false`) en la correspondiente ciudad (`city`) del país (`country`) especificado en la llamada.
 
 Una serie de operadores son los encargados de activar y desactivar las posibilidades de venta en las ciudades. Estos operadores el siguiente endpoint del API para activar o desactivar la venta:
@@ -183,7 +190,7 @@ El token es un secreto compartido entre los encargados y el sistema. Para este e
 ### Probar el Servicio de consulta de disponibilidad de venta
 
 Probar con Postman, el navegador o también lo puedes hacer con: `curl localhost:8000/active?city=Leon\&country=NI`. La respuesta que devuelve debe ser una respuesta JSON como esto:
-```
+```sh
 {
   "active": true, 
   "cache": "hit", 
@@ -207,7 +214,7 @@ Si queremos comprobar que realmente se ha guardado en la base de datos podemos u
 curl localhost:8000/active?city=Leon\&country=NI 
 ``` 
 La petición anterior nos devolverá el registro con los datos solicitados:
-``` 
+```sh 
 {
   "active": true, 
   "cache": "miss", 
