@@ -6,18 +6,23 @@ Esta aplicación fue creada con `python`, `postgres` y el micro framewok `Flask`
 
 La estructura directorios y archivos de la aplicación es la siguiente:
 
-src
-├── disponibilidad
-│   ├── .env
-│   ├── Dockerfile
-│   ├── app.py
-│   ├── config.py
-│   ├── models.py
-│   ├── requirements.txt
-│   └── seed_database.py
+```
 ├── docker-compose.yml
+└── nica-ventas
+    ├── app
+    │   ├── app.py
+    │   ├── __pycache__
+    │   │   ├── app.cpython-37.pyc
+    │   │   ├── requirements.txt
+    │   │   └── worklog.cpython-37.pyc
+    │   ├── requirements.txt
+    │   └── worklog.py
+    ├── Dockerfile
+    └── schema.sql
 
-## [](https://github.com/darwinsalinas/nicaventas/tree/master/Nivel3#el-archivo-dockerfile)El archivo Dockerfile
+
+```
+##  archivo Dockerfile
 
 Para crear la imagen con el micro servicio se ha creado un archivo Dockerfile con el siguiente contenido:
 
@@ -144,7 +149,7 @@ docker-compose up &
 
 ## Funcionamiento del servicio de consulta de disponibilidad de ventas
 
-Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
+Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=Leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
 
@@ -177,89 +182,81 @@ El token es un secreto compartido entre los encargados y el sistema. Para este e
 
 ### Probar el Servicio de consulta de disponibilidad de venta
 
-Probar con Postman, el navegador o también lo puedes hacer con: `curl localhost:5000/active?city=leon&country=ni`. La respuesta que devuelve debe ser una respuesta JSON como esto:
+Probar con Postman, el navegador o también lo puedes hacer con: `curl localhost:8000/active?city=Leon\&country=NI`. La respuesta que devuelve debe ser una respuesta JSON como esto:
 ```
-
+{
+  "active": true, 
+  "cache": "hit", 
+  "city": "Leon", 
+  "country": "NI"
+}
 ```     
-curl localhost:5000/active?city=leon
 
 Para `guardar` un nuevo registro en la base de datos podemos ejecutar esta linea en la terminal:
-
-curl -X POST -d '{"city":"ElRama","country":"ni","active":true}' -H "Content-Type: application/json" localhost:5000/active
-
+``` 
+curl -d '{"city":"Leon", "country":"NI", "estado":"True"}' -H "Content-Type: application/json" -X POST localhost:8000/active
+``` 
 Esto nos debe responder un json con los datos del registro que ha sido guardado:
-
+``` 
 {
-  "active": true,
-  "city": "ElRama",
-  "country": "ni"
+  "mensaje": "Registro existente"
 }
-
+``` 
 Si queremos comprobar que realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
-
-curl localhost:5000/active?city=ElRama&country=ni
-
+``` 
+curl localhost:8000/active?city=Leon\&country=NI 
+``` 
 La petición anterior nos devolverá el registro con los datos solicitados:
-
-[1] 4620
+``` 
 {
-  "active": true,
-  "cache": "miss",
-  "city": "ElRama",
-  "country": "ni"
+  "active": true, 
+  "cache": "miss", 
+  "city": "Leon", 
+  "country": "NI"
 }
-[1]  + 4620 done       curl localhost:5000/active?city=ElRama
-
+   
+curl localhost:8000/active?city=Leon
+``` 
 Si nos fijamos con detenimiento, en este caso la respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica que la petición realizada ha llegado hasta la base de datos, pero si volvemos a hacer la misma petición veremos que ahora se nos devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
-
-[1] 8309
+``` 
 {
-  "active": true,
-  "cache": "hit",
-  "city": "ElRama",
-  "country": "ni"
+  "active": true, 
+  "cache": "hit", 
+  "city": "Leon", 
+  "country": "NI"
 }
-[1]  + 8309 done       curl localhost:5000/active?city=ElRama
 
+
+``` 
 Para `actualizar` un registro podemos ejecutar la siguiente linea en terminal:
-
-curl -X PUT -d '{"city":"El Rama","country":"ni","active":false}' -H "Content-Type: application/json" -H "Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918" localhost:5000/active
-
+``` 
+curl -d '{"city":"Leon", "country":"NI", "estado":"False"}' -H "Content-Type: application/json" -H "Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918" -X PUT localhost:8000/active
+``` 
 Como se puede notar, para lograr esta petición con éxito es necesario que junto con los datos enviado se mande también el token de autorización, de lo contrario la petición devolverá un error, Si la petición se ejecuta sin problemas nos devuelve un json con el registro actualizado:
-
+``` sh
 {
   "active": false,
-  "city": "ElRama",
+  "city": "Leon",
   "country": "ni"
 }
-
-En caso de error de autorización nos devuelve:
-
-{
-  "app-id": "nica-ventas-disponibilidad",
-  "code": 403,
-  "detail": "Error 403, Forbidden",
-  "message": "Erorr 403, Forbidden",
-  "status": 403,
-  "title": "Error 403, Forbidden",
-  "version": "0.1"
-}
-
+``` 
 Si queremos estar totalmente seguros de que se ha actualizado en la base de datos podemos usar esta linea en la terminal:
 
-curl localhost:5000/active?city=ElRama&country=ni
+``` curl localhost:8000/active?city=Leon\&country=NI 
+``` 
+
 
 Ademas de devolvernos el registro actualizado, ahora veremos que también la caché ha sido borrada y se hizo la consulta en base de datos, tal como se nos indica con `"cache": "miss"`:
 
-[1] 18146
+```sh
+
 {
-  "active": false,
-  "cache": "miss",
-  "city": "ElRama",
-  "country": "ni"
+  "active": true, 
+  "cache": "miss", 
+  "city": "Leon", 
+  "country": "NI"
 }
-[1]  + 18146 done       curl localhost:5000/active?city=ElRama
+curl localhost:8000/active?city=Leon
 
-[Repositorio con el código fuente del proyecto(Nivel3)](https://github.com/darwinsalinas/nicaventas/tree/master/Nivel3/src)
-
-[Mi DockerHub](https://hub.docker.com/u/darwinsalinas)
+``` 
+[Mi DockerHub](https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
