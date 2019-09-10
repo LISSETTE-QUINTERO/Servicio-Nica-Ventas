@@ -3,10 +3,10 @@
 
 Objetivos:
 
-  - Ampliar el microservicio par que implemente la llamada [POST] /active. El estado, la ciudad y el país se deberá almacenar en una base de datos relacional.
-  - Modificar el microservicio para que la llamada [GET] /active obtenga sus resultados desde la base de datos.
-  - Orquestar el funcionamiento del microservicio con el de la base de datos haciendo uso de docker-compose. La base de datos en concreto es indiferente, pero se recomienda utilizar postgres, mysql o mariadb
-   - Crear una imagen docker que contenga dicho microservicio y publicarla en dockerhub
+  - Ampliar el microservicio par que implemente la llamada `[POST] /active`. El estado, la ciudad y el país se deberá almacenar en una base de datos relacional.
+  - Modificar el microservicio para que la llamada `[GET] /active` obtenga sus resultados desde la base de datos.
+  - Orquestar el funcionamiento del microservicio con el de la base de datos haciendo uso de docker-compose. La base de datos en concreto es indiferente, pero se recomienda utilizar `postgres`, `mysql` o `mariadb`
+   - Crear una imagen docker que contenga dicho microservicio y publicarla en `dockerhub`
 
 ## Desarollo
 
@@ -113,9 +113,9 @@ En el archivo `docker-compose` se especifican los servicios que se deben arranca
 - REDIS_LOCATION=redis
 - REDIS_PORT=6379
 ``` 
-Este archivo de entorno (environment) será compartido con ambos servicios, en él tendremos el nombre de la base de datos a la cual debe conectarse nuestra aplicación Flask, en este caso la base de datos llamada `nica-ventas`.
+Este archivo de entorno `(environment) `será compartido con ambos servicios, en él tendremos el nombre de la base de datos a la cual debe conectarse nuestra aplicación` Flask`, en este caso la base de datos llamada `nica-ventas`.
 
-Ademas del nombre de la base de datos también tenemos algunas configuraciones para el entorno de Flask, específicamente el modo de depuración está activado en esta configuración.
+Ademas del nombre de la base de datos también tenemos algunas configuraciones para el entorno de `Flask`, específicamente el modo de depuración está activado en esta configuración.
 
 ### Arrancar los contenedores orquestados con docker-compose:
 ```
@@ -123,7 +123,7 @@ docker-compose up &
 ```
 ## Funcionamiento del servicio de consulta de disponibilidad de ventas
 
-Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
+Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un `API REST`, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
 ```sh
