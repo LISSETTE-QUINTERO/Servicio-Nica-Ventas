@@ -110,7 +110,7 @@ Con la información devuelta por el API de OpenWeather estamos en condiciones de
  	 	 	 	
 Supongamos que preguntamos al servicio meteorológico sobre las condiciones en Leon, Nicaragua, y obtenemos id=503 (very heavy rain). Consultamos a continuación a la base de datos y si se cumple al menos una regla de las que tengamos guardadas entonces el valor de variation será la variación que debemos usar. Si por el contrario no se cumpliera ninguna regla se podría considerar que la variación es 1, o lo que es lo mismo, que no hay variación.
 
-# Procedimiento  para  creary publicar las imágenes de Docker
+# Procedimiento  para  crear y publicar las imágenes de Docker
 
 - Crear una imagen de Docker que pueda correr el código de nuestros Micro servicios realizados con Flask se utilizó una imagen oficial de Docker para `Python`:
 
@@ -141,7 +141,7 @@ docker push lissettedocker/nicaventas:N4D
 ```
 Al ejecutar las lineas de arriba se nos va a solicitar nuestras credenciales de dockerhub.
 
-Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno .env que contenga todas las credenciales y configuraciones de la aplicación:
+Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno environment que contenga todas las credenciales y configuraciones de la aplicación:
 ```yml
 environment:
                        - FLASK_DEBUG=1
@@ -152,7 +152,7 @@ environment:
                        - REDIS_LOCATION=redis
                        - REDIS_PORT=6379
 ```
-Aparte del archivo de configuración anteriormente descrito, también necesitamos el script de initdb.sql para crear las tablas y rellenarla con datos para realizar pruebas:
+Aparte del archivo de configuración anteriormente descrito, también necesitamos el script de schema.sql para crear las tablas y rellenarla con datos para realizar pruebas:
 
 
 # docker-compose
