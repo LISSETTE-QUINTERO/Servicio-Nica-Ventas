@@ -2,9 +2,9 @@
 
 Objetivos:
 
-   -Evolucionar la arquitectura existente para incluir un micro servicio que proporcione el API [POST] /quote, según lo especificado en el enunciado en Servicio de consulta de condiciones de venta
-   -Añadir al archivo docker-compose el nuevo microservicio
-   -Añadir políticas de cacheo de forma que si se solicita [POST] /quote con los mismos parámetros se responda desde la cache de REDIS en lugar de volver a realizar la consultas a OpenWeather y la BBDD. La valided de uno de estos datos cacheados será de 5 min. Con objeto de verificar que la cache funciona, incluir en la respuesta un campo cache como se hizo anteriormente.
+ - Evolucionar la arquitectura existente para incluir un micro servicio que proporcione el API `[POST] /quote`, según lo especificado en el enunciado en Servicio de consulta de condiciones de venta
+ - Añadir al archivo docker-compose el nuevo microservicio
+ - Añadir políticas de cacheo de forma que si se solicita `[POST] /quote` con los mismos parámetros se responda desde la cache de REDIS en lugar de volver a realizar la consultas a OpenWeather y la BBDD. La valided de uno de estos datos cacheados será de 5 min. Con objeto de verificar que la cache funciona, incluir en la respuesta un campo cache como se hizo anteriormente.
 
 ## Desarrollo
 
@@ -41,7 +41,7 @@ Estructura de carpetas y archivos para la aplicación NicaVentas:
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país haciendo uso del endpoint `[GET] /active?city=leon&country=ni`.
 
 El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
-```
+```py
 {
   "active": true,
   "country": "ni",
@@ -54,7 +54,7 @@ Una serie de operadores son los encargados de activar y desactivar las posibilid
 
 Modificar el estado de actividad de una ciudad de un país: URL: /active Method: PUT Auth required: YES Body format: Content-type: application/json Body payload:
 
-```
+```sh
 {
   "active": true,
   "country": "ni",
@@ -145,7 +145,7 @@ docker push lissettedocker/nicaventas:N4D
 Al ejecutar las lineas de arriba se nos va a solicitar nuestras credenciales de dockerhub.
 
 Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno .env que contenga todas las credenciales y configuraciones de la aplicación:
-```
+```yml
 environment:
                        - FLASK_DEBUG=1
                        - DATABASE_PASSWORD=nicaventaspass
@@ -165,7 +165,7 @@ Aparte del archivo de configuración anteriormente descrito, también necesitamo
 Para poner en funcionamiento los dos micro servicios, mas la base de datos y el servicio de cache con un solo comando, en este ejemplo se hace uso del orquestador Docker compose, compose utiliza un archivo YML para configurar y arrancar los servicios de la aplicación.
 
 A continuación las lineas necesarias en el archivo docker-compose.yml
-```sh
+```yml
 version: '3'
 services:  
        redis:
@@ -236,7 +236,7 @@ docker-compose up -d
 
 Probar con Postman, el navegador o también lo puedes hacer con: curl localhost:5000/active?city=leon&country=ni. La respuesta que devuelve debe ser una respuesta JSON como esto:
 
-```
+```sh
 {
   "active": false,
   "cache": "hit",
@@ -259,7 +259,7 @@ Esto nos debe responder un json con los datos del registro que ha sido guardado:
 }
 ```
 Si queremos comprobar que realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
-```
+```sh
 curl localhost:5000/active?city=ElRama&country=ni
 ```
 La petición anterior nos devolverá el registro con los datos solicitados:
@@ -364,8 +364,9 @@ Construcción de los micro servicios
 
 Los servicios para el API fueron creados usando Python y Flask y algunas librerías de Python como Flask-SQLAlchemy, requests, redis, a continuación el código fuente de Python para cada uno de los micro servicios
 Servicio de consulta de disponibilidad
-```sh
-shema.py
+
+schema.py
+```sql
 CREATE TABLE IF NOT EXISTS location (
        country varchar(2) NOT NULL,
        city varchar(100) NOT NULL,
@@ -412,7 +413,7 @@ INSERT INTO rules (country, city, sku, min_condition, max_condition, variation) 
 Z00002', 800, 804, 1.5); 
 ```
 app.py 
-```sh
+```py
 import os
 from flask_mysqldb import MySQL
 from worklog import Worklog
