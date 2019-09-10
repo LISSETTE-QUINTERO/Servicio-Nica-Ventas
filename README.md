@@ -61,7 +61,9 @@ Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918
 Servicio de consulta de condiciones de venta
 
 El servicio de condiciones de venta permite consultar qué porcentaje de descuento se hará a un producto determinado. Los productos se identifican mediante un código único denominado SKU. A modo de ejemplo vamos a considerar dos productos:
+|        |               |
 SKU 	DESCRIPCION 	PRECIO
+| ------ | ------ |------ |
 AZ00001 	Paraguas de señora estampado 	10€
 AZ00002 	Helado de sabor fresa 	1€
 
