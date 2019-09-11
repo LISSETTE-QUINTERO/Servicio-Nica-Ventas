@@ -121,12 +121,12 @@ Esta imagen contiene lo necesario para correr código de Python, por lo cual a p
 # Dockerfile
 El DockerFile nos permitirá definir las funciones basicas del contenedor
 ```sh
-FROM python *La directiva FROM indica la imagen base de la cual partiremos
+FROM python  **La directiva FROM indica la imagen base de la cual partiremos
 COPY /app /app 
-RUN pip install -r /app/requirements.txt*Ejecuta un comando y cambia (commit) el resultado de la la imagen final
-WORKDIR app  *Establece el directorio para las directivas de CMD que se ejecutarán
-CMD ["python", "app.py"]*sobreescribir su contenido cuando se crea una imagen python
-EXPOSE 5000 *Expone un puerto al exterior
+RUN pip install -r /app/requirements.txt **Instalar y Ejecuta los comandos en  requirements
+WORKDIR app  **Establece el directorio para las directivas de CMD que se ejecutarán
+CMD ["python", "app.py"] **Configura comandos por defecto para ser ejecutado, o se pasa al punto de entrada ENTRYPOINT
+EXPOSE 5000 **Expone un puerto al exterior
 ```
 
 - Construir las imágenes de Docker y etiquetarlas ejecutamos:
@@ -142,7 +142,7 @@ docker push lissettedocker/nicaventas:N4D
 ```
 Al ejecutar las lineas de arriba se nos va a solicitar nuestras credenciales de dockerhub.
 
-- Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno `environment` que contenga todas las credenciales y configuraciones de la aplicación:
+- Para ejecutar los servicios orquestados con docker-compose se requiere el archivo de entorno `environment` que contenga todas las credenciales y configuraciones de la aplicación:
 ```yml
 environment:
                        - FLASK_DEBUG=1
