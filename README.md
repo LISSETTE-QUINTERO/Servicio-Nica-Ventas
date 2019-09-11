@@ -57,7 +57,8 @@ El campo active indica si la venta está autorizada (`true`) o no (`false`) en l
 
 Una serie de operadores son los encargados de activar y desactivar las posibilidades de venta en las ciudades. Estos operadores disponen del siguiente endpoint del API para activar o desactivar la venta:
 
-Modificar el estado de actividad de una ciudad de un país: URL: /active Method: PUT Auth required: YES Body format: Content-type: application/json Body payload:
+Modificar el estado de actividad de una ciudad de un país: **URL**: `/active` **Method**: `PUT` **Auth required**: YES **Body format**: `Content-type: application/json` **Body payload**:
+
 
 ```sh
 {
