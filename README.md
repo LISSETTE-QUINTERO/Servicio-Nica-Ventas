@@ -116,9 +116,7 @@ Supongamos que preguntamos al servicio meteorológico sobre las condiciones en L
 
 # Procedimiento  para  crear y publicar las imágenes de Docker
 
-- Crear una imagen de Docker que pueda correr el código de nuestros Micro servicios realizados con Flask se utilizó una imagen oficial de Docker para `Python`:
-
-    URL de imagen de Python
+- Crear una imagen de Docker que pueda correr el código de nuestros Micro servicios realizados con Flask se utilizó una imagen oficial de Docker para `Python`.
 
 Esta imagen contiene lo necesario para correr código de Python, por lo cual a partir de ella se ha creado la imagen que contiene el código del Micro servicio, para reproducir una imagen igual a la que se ha creado debemos escribir el siguiente código en nuestro archivo:
 
