@@ -51,20 +51,19 @@ CMD ["python", "app.py"]
 
 ```
 
-- Construir la imagen
 
-Para construir la imagen se debe ejecutar el siguiente comando en la terminal, en la misma ruta donde se encuentra ubicado el archivo Dockerfile:
+Para construir la imagen:
 ```
 docker build -t lissettedocker/nicaventas:N2 .
 ```
-En mi caso yo le he construido y etiquetado para poderla subir a [mi repositorio de Docker hub](https://cloud.docker.com/repository/docker/lissettedocker/nicaventas) posteriormente, para subir la imagen de recién construida se debe ejecutar el siguiente comando en la terminal:
+Para  subir la imagen de recién construida:
 ```
 docker login
 docker push lissettedocker/nicaventas:N2
 ```
 - Contruir  docker-compose
 
-Para probar  el funcionamiento del micro servicio creado se ha creado una receta con docker-compose, el cual orquesta un servicio para la base de datos y el servicio para la aplicación Flask.
+Para probar  el funcionamiento del micro servicio se ha creado un  docker-compose, el cual orquesta un servicio para la base de datos y el servicio para la aplicación Flask.
 
 ```sh 
 version: '3'
@@ -103,7 +102,7 @@ services:
 
 ```
 
-En el archivo `docker-compose` se especifican los servicios que se deben arrancar y para el correcto funcionamiento de los mismos primeramente necesitamos crear un archivo `environment` con las configuraciones y credenciales de nuestra bade de datos:
+El archivo `docker-compose`  especifica los servicios que se deben arrancar y para el correcto funcionamiento de los mismos primero necesitamos crear un archivo `environment` con las configuraciones y credenciales de nuestra bade de datos:
 ```sh 
 - FLASK_DEBUG=1
 - DATABASE_PASSWORD=nicaventaspass
@@ -113,7 +112,7 @@ En el archivo `docker-compose` se especifican los servicios que se deben arranca
 - REDIS_LOCATION=redis
 - REDIS_PORT=6379
 ``` 
-Este archivo de entorno `(environment) `será compartido con ambos servicios, en él tendremos el nombre de la base de datos a la cual debe conectarse nuestra aplicación` Flask`, en este caso la base de datos llamada `nica-ventas`.
+El archivo de entorno `(environment) `será compartido con ambos servicios, en él tendremos el nombre de la base de datos a la cual debe conectarse nuestra aplicación` Flask`, en este caso la base de datos llamada `nica-ventas`.
 
 Ademas del nombre de la base de datos también tenemos algunas configuraciones para el entorno de `Flask`, específicamente el modo de depuración está activado en esta configuración.
 
@@ -125,7 +124,7 @@ docker-compose up &
 
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un `API REST`, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=leon&country=ni`.
 
-El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
+Resultado de la invocación de este endpoint:
 ```sh
 {
   "active": true,
@@ -148,11 +147,13 @@ Modificar el estado de actividad de una ciudad de un país: **URL**: `/active` *
 
 ```
 
-Esta llamada solo se atenderá si incluye en las cabeceras HTTP un token de autenticación como el siguiente:
+Esta llamada  atenderá si incluye en las cabeceras HTTP un token de autenticación como el siguiente:
 
 `Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918`
 
 El token es un secreto compartido entre los encargados y el sistema. Para este ejemplo, el token `2234hj234h2kkjjh42kjj2b20asd6918` será siempre este.
 
-[Mi DockerHub](https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
+**Mi DockerHub**
+
+(https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
 
