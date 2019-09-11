@@ -121,20 +121,20 @@ Esta imagen contiene lo necesario para correr código de Python, por lo cual a p
 # Dockerfile
 El DockerFile nos permitirá definir las funciones basicas del contenedor
 ```sh
-FROM python
-COPY /app /app
-RUN pip install -r /app/requirements.txt
-WORKDIR app
-CMD ["python", "app.py"]
-EXPOSE 5000
+FROM python *La directiva FROM indica la imagen base de la cual partiremos
+COPY /app /app 
+RUN pip install -r /app/requirements.txt*Ejecuta un comando y cambia (commit) el resultado de la la imagen final
+WORKDIR app  *Establece el directorio para las directivas de CMD que se ejecutarán
+CMD ["python", "app.py"]*sobreescribir su contenido cuando se crea una imagen python
+EXPOSE 5000 *Expone un puerto al exterior
 ```
 
-- Construir las imágenes de Docker y etiquetarlas ejecutamos esta línea en terminal dentro de la carpeta correspondiente de cada micro servicio:
+- Construir las imágenes de Docker y etiquetarlas ejecutamos:
 ```
 docker build -t lissettedocker/nicaventas:N4C .
 docker build -t lissettedocker/nicaventas:N4D .
 ```
-- Subir nuestras imágenes recién creadas ejecutamos lo siguiente en terminal:
+- Para  empujar las imagenes creadas del servicio creadas ejecutamos:
 ```
 docker login 
 docker push lissettedocker/nicaventas:N4C
@@ -142,7 +142,7 @@ docker push lissettedocker/nicaventas:N4D
 ```
 Al ejecutar las lineas de arriba se nos va a solicitar nuestras credenciales de dockerhub.
 
-Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno environment que contenga todas las credenciales y configuraciones de la aplicación:
+- Para correr los servicios orquestados con docker-compose se requiere la presencia de un archivo de entorno `environment` que contenga todas las credenciales y configuraciones de la aplicación:
 ```yml
 environment:
                        - FLASK_DEBUG=1
@@ -153,7 +153,7 @@ environment:
                        - REDIS_LOCATION=redis
                        - REDIS_PORT=6379
 ```
-Aparte del archivo de configuración anteriormente descrito, también necesitamos el script de schema.sql para crear las tablas y rellenarla con datos para realizar pruebas:
+También necesitamos el script de schema.sql para crear las tablas y rellenarla con datos para realizar pruebas:
 
 
 # docker-compose
@@ -219,18 +219,19 @@ services:
                       - ./Condiciones/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     
 ```
-Ya con estos archivos podemos correr nuestros servicios con la siguiente instrucción:
+Ejecutar el demonio docker-compose:
 ```
 docker-compose up
 ```
-Si queremos poner a correr ls servicios en segundo plano podemos agregarle el flag -d:
+Ejecutar el demonio docker-compose en segundo plano: 
 ```
 docker-compose up -d
 ```
 
 ## Servicio de consulta de disponibilidad de venta
 
-- Probar  con: `curl localhost:8000/active?city=Leon&country=ni`. Devuelve respuesta JSON como esto:
+- Probar  con: `curl localhost:8000/active?city=Leon&country=ni`. 
+Devuelve respuesta JSON como esto:
 
 ```sh
 {
