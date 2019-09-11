@@ -8,8 +8,13 @@ Objetivos:
 
 ## Desarrollo
 
-La aplicación de NicaVentas cuenta con dos micro servicios con una estructura bastante simple, los cuales fueron creados para interactuar con el servicio de base de datos`(mysql`) y el servicio de caché(`redis`), el primero de estos dos servicios es el servicio de consulta de disponibilidad de ventas por país y ciudades, el segundo es el servicio de consulta de condiciones de venta, en este segundo servicio se hace uso del API de OpenWeatherMaps para consultar el estado del clima en el Pais y ciudad solicitado, esto con el fin de poder hacer una venta diferenciada de acuerdo al clima que se esté presentado en ese momento en la ciudad.
+La aplicación de NicaVentas cuenta con dos micro servicios, los cuales fueron creados para interactuar con el servicio de base de datos`(mysql`) y el servicio de caché(`redis`).
+
+ Primer Microservicio: Es el servicio de consulta de disponibilidad de ventas por país y ciudades.
+ 
+ Segundo Microservicio: Es el servicio de consulta de condiciones de venta, en este segundo servicio se hace uso del API de OpenWeatherMaps para consultar el estado del clima en el Pais y ciudad solicitado, esto con el fin de poder hacer una venta diferenciada de acuerdo al clima que se esté presentado en ese momento en la ciudad.
 Estructura de carpetas y archivos para la aplicación NicaVentas:
+
 ```
 ├── Condiciones
 │   ├── app
@@ -38,9 +43,9 @@ Estructura de carpetas y archivos para la aplicación NicaVentas:
 ```
 ## Servicio de consulta de disponibilidad de ventas
 
-Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país haciendo uso del endpoint `[GET] /active?city=Leon&country=ni`.
+Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país haciendo uso del ENDPOINT `[GET] /active?city=Leon&country=ni`.
 
-El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
+Los datos de la consuta de este endpoint los entrega en formato json, de la siguiente forma:
 ```py
 {
   "active": true,
@@ -61,14 +66,13 @@ Modificar el estado de actividad de una ciudad de un país: URL: /active Method:
   "city": "Leon"
 }
 ```
-Esta llamada solo se atenderá si incluye en las cabeceras HTTP un token de autenticación como el siguiente:
+Esta llamada se atenderá si incluye en las cabeceras HTTP un token de autenticación como el siguiente:
 ```
 Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918
 ```
 # Servicio de consulta de condiciones de venta
 
-El servicio de condiciones de venta permite consultar qué porcentaje de descuento se hará a un producto determinado. Los productos se identifican mediante un código único denominado `SKU`. A modo de ejemplo vamos a considerar dos productos:
-
+El servicio de Condiciones de venta permite consultar el porcentaje de descuento que debe aplicarse a un producto determinado. Los productos se identifican mediante un código único denominado `sku`. 
 
 | SKU | DESCRIPCION| PRECIO|
 | ------ | ------ |------ |
@@ -76,9 +80,9 @@ El servicio de condiciones de venta permite consultar qué porcentaje de descuen
 | AZ00002 | Helado de sabor fresa |1€|
 
  	
-El precio final de venta dependerá de dos factores: la ciudad y país de venta, y la condiciones meteorológicas de esa ciudad. La idea general es vender más caros los paraguas y más baratos los helados si estuviera lloviendo, y al contrario, abaratar los paraguas y encarecer helados si hiciera sol. Se proporcionará para esta consulta el endpoint `[GET] /price/<:sku>`.
+El precio final de venta dependerá de dos factores: la ciudad, el país de venta, y las condiciones meteorológicas de dicha ciudad. La idea general es vender más caros los paraguas y más baratos los helados si esta lloviendo, y al contrario, abarrotar los paraguas y encarecer helados si hace sol. Se proporcionará para esta consulta el ENDPOINT `[GET] /price/<:sku>`.
 
-Por ejemplo, si la venta se hace en León (Nicaragua) y está lloviendo en ese momento, la llamada `[POST] /quote` con `body`:
+Ejemplo, si la venta se hace en León-Nicaragua y está lloviendo en ese momento, la llamada `[POST] /quote` con `body`:
 ```sh
 {
   "sku": "AZ00001",
@@ -153,14 +157,14 @@ environment:
                        - REDIS_LOCATION=redis
                        - REDIS_PORT=6379
 ```
-También necesitamos el script de schema.sql para crear las tablas y rellenarla con datos para realizar pruebas:
+También necesitamos el script de schema.sql para crear las tablas y rellenarla con datos para realizar pruebas.
 
 
 # docker-compose
 
-Para el funcionamiento de dos micro servicios, la base de datos y el servicio de cache con un solo comando, en este ejemplo se hace uso del orquestador docker compose, el cual utiliza un archivo yml para configurar y arrancar los servicios de la aplicación.
+Para el funcionamiento de dos micro servicios, la base de datos y el servicio de caché con un solo comando, se hace uso del orquestador docker compose, el cual utiliza un archivo yml para configurar y arrancar los servicios de la aplicación.
 
-A continuación las lineas necesarias en el archivo docker-compose.yml
+Archivo docker-compose.yml
 ```yml
 version: '3'
 services:  
@@ -219,11 +223,11 @@ services:
                       - ./Condiciones/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     
 ```
-Ejecutar el demonio docker-compose:
+- Ejecutar el demonio docker-compose:
 ```
 docker-compose up
 ```
-Ejecutar el demonio docker-compose en segundo plano: 
+- Ejecutar el demonio docker-compose en segundo plano: 
 ```
 docker-compose up -d
 ```
@@ -247,7 +251,7 @@ curl localhost:8000/active?city=leon
 ```
 curl -d '{"city":"Leon", "country":"NI", "estado":"True"}' -H "Content-Type: application/json" -X POST localhost:8000/active
 ```
-Debe responder un json con los datos del registro que han sido guardado:
+Los datos los entrega en formato json  con los datos del registro que han sido guardado:
 ```
 {
   "active": true,
@@ -255,9 +259,9 @@ Debe responder un json con los datos del registro que han sido guardado:
   "country": "ni"
 }
 ```
-- Comprobar que realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
+- Comprobar que los datos realmente se han guardado en la base de datos:
 ```sh
-curl localhost:8000/active?city=Leon&country=ni
+curl localhost:8000/active?city=Leon\&country=NI
 ```
 La petición anterior nos devolverá el registro con los datos solicitados:
 
@@ -272,7 +276,7 @@ curl -d '{"city":"Leon", "country":"NI", "active":"1"}' -H "Content-Type: applic
 
        curl localhost:8000/active?city=Leon
 ```
-La respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica que la petición realizada ha llegado hasta la base de datos, pero si volvemos a hacer la misma petición veremos que ahora se nos devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
+La respuesta incluye un atributo llamado `"cache": "miss"` lo cual  indica que la petición realizada ha llegado hasta la base de datos, pero al realizar  la misma petición observamos que ahora  devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
 
 ```sh
 {
@@ -287,7 +291,7 @@ La respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica qu
 ```sh
 curl -d '{"city":"Leon", "country":"NI", "estado":"False"}' -H "Content-Type: application/json" -H "Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918" -X PUT localhost:8000/active
 ```
-Para lograr esta petición con éxito es necesario que en los datos enviados se mande  el token de autorización, de lo contrario la petición devolverá un error, Si la petición se ejecuta sin problemas nos devuelve un json con el registro actualizado:
+Para lograr esta petición con éxito es necesario que en los datos enviados se mande  el token de autorización
 ```sh
 {
   "active": false,
@@ -296,7 +300,7 @@ Para lograr esta petición con éxito es necesario que en los datos enviados se 
 }
 ```
 
-Para seguridad de actualización en la base de datos podemos usar esta linea en la terminal:
+Para seguridad de actualización en la base de datos:
 ```sh
 curl localhost:8000/active?city=Leon\&country=NI
 ```
@@ -314,7 +318,7 @@ debe retornar el registro actualizado, ahora veremos que también la cache ha si
 
 # Servicio de consulta de condiciones de venta
 
-Este servicio  hace uso del API de OpenWeather para consultar el estado del clima de la ciudad donde se quiere realizar la venta, primeramente para este servicio tenemos disponible una ruta para consultar directamente el precio base de un producto del inventario:
+Este servicio  hace uso del API de OpenWeather para consultar el estado del clima de la ciudad donde se quiere realizar la venta, para este servicio tenemos disponible una ruta para consultar directamente el precio base de un producto del inventario:
 ```sh
 curl 'localhost:8001/price/AZ00001'
 curl 'localhost:8001/price/AZ00002'
