@@ -75,20 +75,19 @@ CMD ["python", "app.py"]
 
 ```
 
--  Construir la imagen
 
-Para construir la imagen se debe ejecutar el siguiente comando en la terminal, en la misma ruta donde se encuentra ubicado el archivo Dockerfile:
+Para construir la imagen:
 ```
  docker build -t lissettedocker/nicaventas:N3.
 ```
-En mi caso yo le he construido y etiquetado para poderla subir a [mi repositorio de Docker Hub](https://cloud.docker.com/repository/docker/lissettedocker/nicaventas) posteriormente, para subir la imagen de recién construida se debe ejecutar el siguiente comando en la terminal:
+para subir la imagen de recién construida :
 ```
 docker login 
 docker push lissettedocker/nicaventas:N3
 ```
 - Contruir docker-compose
 
-Para probar de forma fácil el funcionamiento del micro servicio creado se ha creado una receta con docker-compose, el cual orquesta un servicio para redis, uno para la base de datos y por ultimo el servicio para la aplicación Flask.
+Para probar el funcionamiento del micro servicio creado se ha creado un docker-compose, el cual orquesta un servicio para redis, uno para la base de datos y por ultimo el servicio para la aplicación Flask.
 
 ```sh
 version: '3'
@@ -129,7 +128,7 @@ services:
                       - ./nica-ventas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 ```
 
-Como se puede apreciar en el archivo `docker-compose` se especifican los servicios que se deben arrancar y para el correcto funcionamiento de los mismos primeramente necesitamos crear un archivo `environment` con las configuraciones y credenciales de nuestra bade de datos:
+El archivo `docker-compose` se especifica los servicios que se deben arrancar y para el correcto funcionamiento de los mismos primero necesitamos crear un archivo `environment` con las configuraciones y credenciales de nuestra bade de datos:
 ```sh
 - FLASK_DEBUG=1
 - DATABASE_PASSWORD=nicaventaspass
@@ -147,7 +146,7 @@ Este archivo de entorno (environment) será compartido con ambos servicios, en �
 ```
 docker-compose up
 ```
-Si quisiéramos arrancar los servicios en segundo plano podemos agregarle el flag '&'
+para arrancar los servicios en segundo plano:
 ```
 docker-compose up &
 ```
@@ -157,7 +156,7 @@ docker-compose up &
 
 Servicio web se emplea para consultar si se está autorizada la venta de productos en general en una ciudad concreta de un país. Para ello se construirá un API REST, y concretamente para esta consulta se implementará un endpoint `[GET] /active?city=Leon&country=ni`.
 
-El resultado de la invocación de este endpoint, a modo de ejemplo, será el siguiente:
+El resultado de la consulta de este endpoint:
 ```sh
 {
   "active": true,
@@ -198,7 +197,7 @@ El token es un secreto compartido entre los encargados y el sistema. Para este e
 }
 ```     
 
-- Para `guardar` un nuevo registro en la base de datos podemos ejecutar esta linea en la terminal:
+- Para `guardar` un nuevo registro en la base de datos:
 ``` 
 curl -d '{"city":"Leon", "country":"NI", "estado":"True"}' -H "Content-Type: application/json" -X POST localhost:8000/active
 ``` 
@@ -208,7 +207,7 @@ Esto nos debe responder un json con los datos del registro que ha sido guardado:
   "mensaje": "Registro existente"
 }
 ``` 
- - Comprobar si realmente se ha guardado en la base de datos podemos usar esta linea en la terminal:
+ - Comprobar si realmente se ha guardado en la base de datos:
 ``` 
 curl localhost:8000/active?city=Leon\&country=NI 
 ``` 
@@ -223,7 +222,7 @@ La petición anterior nos devolverá el registro con los datos solicitados:
    
 curl localhost:8000/active?city=Leon
 ``` 
-Si nos fijamos con detenimiento, en este caso la respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica que la petición realizada ha llegado hasta la base de datos, pero si volvemos a hacer la misma petición veremos que ahora se nos devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
+En este caso la respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica que la petición realizada ha llegado hasta la base de datos, pero si volvemos a hacer la misma petición veremos que ahora se nos devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
 ``` 
 {
   "active": true, 
@@ -234,7 +233,7 @@ Si nos fijamos con detenimiento, en este caso la respuesta incluye un atributo l
 
 
 ``` 
-- Para `actualizar` un registro podemos ejecutar la siguiente linea en terminal:
+- Para `actualizar` un registro:
 ``` 
 curl -d '{"city":"Leon", "country":"NI", "estado":"False"}' -H "Content-Type: application/json" -H "Authorization: Bearer 2234hj234h2kkjjh42kjj2b20asd6918" -X PUT localhost:8000/active
 ``` 
@@ -246,7 +245,7 @@ Como se puede notar, para lograr esta petición con éxito es necesario que junt
   "country": "ni"
 }
 ``` 
-Si queremos estar totalmente seguros de que se ha actualizado en la base de datos podemos usar esta linea en la terminal:
+Para asegurar de que se ha actualizado en la base de datos:
 
 ``` curl localhost:8000/active?city=Leon\&country=NI 
 ``` 
@@ -265,4 +264,6 @@ Si queremos estar totalmente seguros de que se ha actualizado en la base de dato
 curl localhost:8000/active?city=Leon
 
 ``` 
-[Mi DockerHub](https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
+**Mi DockerHub**
+
+(https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
