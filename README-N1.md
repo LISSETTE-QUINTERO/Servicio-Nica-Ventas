@@ -27,7 +27,7 @@ En el endpoint /active la aplicación responde con un json de acuerdo a la espec
  }
 
 ```
-En este caso el endpoint /active está preparado para recibir dos parámetros de tipo GET(por medio de la URL) pero la respuesta NO proviene de la base de datos, sino que solamente muestra con cierto formato los datos que han sido enviados como parámetros, esto es porque en la aplicación flask se reciben los argumentos de esta manera:
+En este caso el endpoint /active está preparado para recibir dos parámetros de tipo GET pero la respuesta no proviene de la base de datos, sino que solamente muestra con cierto formato los datos que han sido enviados como parámetros, esto es porque en la aplicación flask se reciben los argumentos de la siguiente manera:
 ```sh
 
 @app.route('/activedummy_ventas = [{
@@ -41,7 +41,7 @@ def get_dummy():
    return jsonify(dummy_res.dummy_ventas)
 ```
 
-Procedimiento realizado para la creación y publicación de la imagen de Docker
+# Crear y publicar  la imagen de Docker
 
     URL de dockerhub: (https://cloud.docker.com/repository/docker/lissettedocker/nicaventas)
 
@@ -49,7 +49,7 @@ Para crear una imagen de docker que pueda correr el código de nuestro Micro ser
 
    URL de imagen de Python (https://hub.docker.com/_/python)
    
-Esta imagen contiene lo necesario para correr código de Python, por lo cual a partir de ella se ha creado la imagen que contiene el código del Micro servicio, para reproducir una imagen igual a la que se ha creado debemos escribir el siguiente código en nuestro archivo.
+La imagen contiene lo necesario para correr código de Python, por lo cual a partir de ella se ha creado la imagen que contiene el código del Micro servicio, para reproducir una imagen igual a la que se ha creado se debe escribir el siguiente código en nuestro archivo.
 
 # Dockerfile:
     
@@ -61,16 +61,16 @@ WORKDIR app
 CMD ["python", "app.py"]
 EXPOSE 5000
 ```
- - Para construir y etiquetar la imagen ejecutamos esta línea en terminal:
+ - Para construir y etiquetar la imagen:
  ```
 docker build -t lissettedocker/nicaventas .
 ```
- - Para subir nuestra imagen recién creada ejecutamos la siguiente linea en terminal:
+ - Para subir nuestra imagen recién creada:
 ```sh
 docker login
 docker push 
 ```
- - Para correr un contenedor basado en nuestra imagen podemos ejecutar esta linea en terminal:
+ - Para correr un contenedor basado en nuestra imagen:
 ```sh
 docker run -d -p 8000:8000 lissettedocker/nicaventas:N1
 ```
@@ -78,7 +78,7 @@ docker run -d -p 8000:8000 lissettedocker/nicaventas:N1
 ```sh
 curl localhost:8000/active?city=leon&country=ni. 
 ```
-- La respuesta debe ser una respuesta JSON válida conforme a la especificación del servicio.
+- Los datos los entrega en formato json  válida conforme a la especificación del servicio.
 
 **Mi DockerHub**
 
