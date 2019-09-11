@@ -119,6 +119,7 @@ Supongamos que preguntamos al servicio meteorológico sobre las condiciones en L
 Esta imagen contiene lo necesario para correr código de Python, por lo cual a partir de ella se ha creado la imagen que contiene el código del Micro servicio, para reproducir una imagen igual a la que se ha creado debemos escribir el siguiente código en nuestro archivo:
 
 # Dockerfile
+El DockerFile nos permitirá definir las funciones basicas del contenedor
 ```sh
 FROM python
 COPY /app /app
@@ -229,7 +230,7 @@ docker-compose up -d
 
 ## Servicio de consulta de disponibilidad de venta
 
-- Probar  con: `curl localhost:5000/active?city=Leon&country=ni`. Devuelve respuesta JSON como esto:
+- Probar  con: `curl localhost:8000/active?city=Leon&country=ni`. Devuelve respuesta JSON como esto:
 
 ```sh
 {
@@ -249,7 +250,7 @@ Debe responder un json con los datos del registro que han sido guardado:
 ```
 {
   "active": true,
-  "city": "ElRama",
+  "city": "Leon",
   "country": "ni"
 }
 ```
@@ -266,7 +267,9 @@ La petición anterior nos devolverá el registro con los datos solicitados:
   "city": "Leon",
   "country": "ni"
 }
-       curl localhost:5000/active?city=Leon
+curl -d '{"city":"Leon", "country":"NI", "active":"1"}' -H "Content-Type: application/json" -X POST localhost:8000/active
+
+       curl localhost:8000/active?city=Leon
 ```
 La respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica que la petición realizada ha llegado hasta la base de datos, pero si volvemos a hacer la misma petición veremos que ahora se nos devuelve el siguiente json con el atributo `"cache": "hit"` indicando que ahora los datos provienen de la cache, optimizando los tiempos de carga:
 
@@ -277,7 +280,7 @@ La respuesta incluye un atributo llamado `"cache": "miss"` lo cual nos indica qu
   "city": "Leon",
   "country": "ni"
 }
- curl localhost:5000/active?city=Leon
+ curl localhost:8000/active?city=Leon
 ```
 - Actualizar un registro podemos ejecutar la siguiente linea en terminal:
 ```sh
@@ -312,7 +315,8 @@ debe retornar el registro actualizado, ahora veremos que también la cache ha si
 
 Este servicio  hace uso del API de OpenWeather para consultar el estado del clima de la ciudad donde se quiere realizar la venta, primeramente para este servicio tenemos disponible una ruta para consultar directamente el precio base de un producto del inventario:
 ```sh
-curl http://127.0.0.1:8001/price/AZ00001
+curl 'localhost:8001/price/AZ00001'
+curl 'localhost:8001/price/AZ00002'
 ```
 Con los datos de pruebas que hemos insertado en la base de datos se tiene disponibles 2 artículos para consultar por medio de su SKU, el AZ00001 y el AZ00002.
 
@@ -320,8 +324,17 @@ Con los datos de pruebas que hemos insertado en la base de datos se tiene dispon
 ```sh
 {
   "description": "Paraguas de señora estampado",
+  "idSku": "AZ00001"
   "price": 10
 }
+```
+ Al ejecutar la petición anterior  debe devolver un json similar a esto:
+```sh
+"description": "Helado de sabor fresa", 
+  "idSku": "AZ00002", 
+  "price": 10.0
+}
+
 ```
 - Para consultar la variación de precio de acuerdo al estado del clima en la ciudad donde se quiere realizar la venta podemos usar esta linea en la terminal:
 ```sh
